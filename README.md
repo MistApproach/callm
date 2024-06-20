@@ -28,7 +28,7 @@ Callm uses builder pattern for creating inference pipelines.
 ```rust
 use callm::pipelines::PipelineText;
 
-fn main() -> Result<(), Box<dyn std::error::Error> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let mut pipeline = PipelineText::builder()
 		.with_location("/path/to/model")
 		.build()?;
