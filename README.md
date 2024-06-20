@@ -3,8 +3,6 @@
 ## About
 Callm allows you to easily run Generative AI models (like Large Language Models) directly on your hardware, offline.
 Under the hood callm relies heavily on the [candle](https://github.com/huggingface/candle) crate and is 100% pure Rust.
-> [!NOTE]
-> Callm is still at early development stage and is NOT production ready yet.
 
 ### Supported models
 
@@ -14,6 +12,9 @@ Under the hood callm relies heavily on the [candle](https://github.com/huggingfa
 | Mistral | ✅ | ✅ |
 | Phi3 | ✅ | ❌ |
 | Qwen2 | ✅ | ❌ |
+
+> [!NOTE]
+> Callm is still at early development stage and is NOT production ready yet.
 
 ## Installation
 Add callm to your dependencies:
