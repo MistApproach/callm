@@ -6,7 +6,7 @@ edition = "2021"
 authors = ["MistApproach"]
 license = "MIT"
 repository = "https://github.com/MistApproach/callm"
-keywords = ["AI", "LLM", "ML", "Generative AI", "candle"]
+keywords = ["AI", "LLM", "ML", "GenAI", "candle"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
