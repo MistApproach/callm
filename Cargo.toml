@@ -1,0 +1,26 @@
+[package]
+name = "callm"
+description = "Run generative AI models directly on your hardware"
+version = "0.1.0"
+edition = "2021"
+authors = ["MistApproach"]
+license = "MIT"
+repository = "https://github.com/MistApproach/callm"
+keywords = ["AI", "LLM", "ML", "Generative AI", "candle"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+thiserror = "1.0"
+log = "0.4"
+minijinja = "2.0"
+serde = "1.0"
+serde_json = "1.0"
+tokenizers = "0.19"
+candle-core = { git = "https://github.com/huggingface/candle.git", version = "0.6.0", features = [
+  "cuda",
+] }
+candle-nn = { git = "https://github.com/huggingface/candle.git", version = "0.6.0", features = [
+  "cuda",
+] }
+candle-transformers = { git = "https://github.com/huggingface/candle.git", version = "0.6.0" }
