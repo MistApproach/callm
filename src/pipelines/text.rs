@@ -9,7 +9,7 @@ use crate::utils::autodetect_loader;
 pub struct PipelineText {
     model: Option<Box<dyn ModelImpl>>,
     loader: Box<dyn LoaderImpl>,
-    devicecfg: DeviceConfig,
+    device: DeviceConfig,
     // inference parameters
     seed: Option<u64>,
     temperature: f64,
@@ -26,7 +26,7 @@ impl PipelineText {
         Self {
             loader,
             model: None,
-            devicecfg: DeviceConfig::autodetect(),
+            device: DeviceConfig::autodetect(),
             seed: None,
             temperature: 0.7,
             top_k: None,
@@ -110,7 +110,7 @@ impl PipelineText {
             let ctxt_size = if index > 0 { 1 } else { tokens.len() };
             let start_pos = tokens.len().saturating_sub(ctxt_size);
             let ctxt = &tokens[start_pos..];
-            let input = Tensor::new(ctxt, self.devicecfg.candle_device())?.unsqueeze(0)?;
+            let input = Tensor::new(ctxt, self.device.candle_device())?.unsqueeze(0)?;
 
             let logits = model.forward(&input, start_pos)?.squeeze(0)?.squeeze(0)?;
 
@@ -135,7 +135,7 @@ impl PipelineText {
     }
 
     pub fn set_device(&mut self, device: DeviceConfig) {
-        self.devicecfg = device;
+        self.device = device;
     }
 
     pub fn run_chat(&mut self, messages: &[(MessageRole, String)]) -> Result<String, CallmError> {
@@ -249,7 +249,7 @@ impl PipelineTextBuilder {
         pipeline.top_p = self.top_p;
 
         if let Some(device) = self.device {
-            pipeline.devicecfg = device;
+            pipeline.device = device;
         }
 
         if self.autoload {
