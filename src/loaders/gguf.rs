@@ -1,6 +1,6 @@
 //! GGUF loader
 //!
-//! file format specification: https://github.com/ggerganov/ggml/blob/8d6b7038871fada44fbaa61dd5eabe5fccab1cbb/docs/gguf.md
+//! file format specification: `<https://github.com/ggerganov/ggml/blob/8d6b7038871fada44fbaa61dd5eabe5fccab1cbb/docs/gguf.md>`
 
 pub mod llama;
 
