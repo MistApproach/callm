@@ -8,7 +8,7 @@ use crate::utils::autodetect_loader;
 /// Pipeline for text generation
 pub struct PipelineText {
     model: Option<Box<dyn ModelImpl + Send>>,
-    loader: Box<dyn LoaderImpl>,
+    loader: Box<dyn LoaderImpl + Send>,
     device: DeviceConfig,
     // inference parameters
     seed: Option<u64>,
@@ -22,7 +22,7 @@ impl PipelineText {
         PipelineTextBuilder::new()
     }
 
-    pub fn new(loader: Box<dyn LoaderImpl>) -> Self {
+    pub fn new(loader: Box<dyn LoaderImpl + Send>) -> Self {
         Self {
             loader,
             model: None,
@@ -171,7 +171,7 @@ impl PipelineText {
 #[derive(Default)]
 pub struct PipelineTextBuilder {
     location: Option<String>,
-    loader: Option<Box<dyn LoaderImpl>>,
+    loader: Option<Box<dyn LoaderImpl + Send>>,
     device: Option<DeviceConfig>,
     autoload: bool,
     temperature: f64,
@@ -194,7 +194,7 @@ impl PipelineTextBuilder {
         self
     }
 
-    pub fn with_loader(mut self, loader: Box<dyn LoaderImpl>) -> Self {
+    pub fn with_loader(mut self, loader: Box<dyn LoaderImpl + Send>) -> Self {
         self.loader = Some(loader);
         self
     }

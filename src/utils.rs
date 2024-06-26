@@ -4,7 +4,7 @@ use std::fs;
 use std::path::PathBuf;
 
 /// Guess suitable model loader for a given path
-pub fn autodetect_loader(path: &str) -> Result<Box<dyn LoaderImpl>, CallmError> {
+pub fn autodetect_loader(path: &str) -> Result<Box<dyn LoaderImpl + Send>, CallmError> {
     // get path metadata
     let metadata = fs::metadata(path)?;
     if metadata.is_file() {
