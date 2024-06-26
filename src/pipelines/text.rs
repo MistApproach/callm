@@ -7,7 +7,7 @@ use crate::utils::autodetect_loader;
 
 /// Pipeline for text generation
 pub struct PipelineText {
-    model: Option<Box<dyn ModelImpl>>,
+    model: Option<Box<dyn ModelImpl + Send>>,
     loader: Box<dyn LoaderImpl>,
     device: DeviceConfig,
     // inference parameters

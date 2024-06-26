@@ -11,7 +11,7 @@ use tokenizers::tokenizer::Tokenizer;
 
 pub trait LoaderImpl {
     fn set_device(&mut self, device: Option<DeviceConfig>);
-    fn load(&mut self) -> Result<Box<dyn ModelImpl>, CallmError>;
+    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError>;
     fn tokenizer(&mut self) -> Result<Tokenizer, CallmError>;
     fn template(&mut self) -> Result<Box<dyn TemplateImpl>, CallmError>;
 }
