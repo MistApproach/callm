@@ -39,9 +39,13 @@ impl PipelineText {
     }
 
     pub fn load(&mut self) -> Result<(), CallmError> {
-        // load
+        // propagate device to loader
+        self.loader.set_device(Some(self.device.clone()));
+        // loader
         let mut model = self.loader.load()?;
+        // model
         model.load()?;
+        // store model trait object
         self.model = Some(model);
 
         Ok(())
