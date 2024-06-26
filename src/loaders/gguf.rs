@@ -101,7 +101,7 @@ impl LoaderImpl for LoaderGguf {
         }
     }
 
-    fn load(&mut self) -> Result<Box<dyn ModelImpl>, CallmError> {
+    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
         let timer = Instant::now();
         // check if location points to a file
         let file_metadata = fs::metadata(&self.location)?;

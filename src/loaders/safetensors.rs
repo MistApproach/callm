@@ -202,8 +202,8 @@ impl LoaderSafetensors {
         Ok(())
     }
 
-    fn load_model(&mut self) -> Result<Box<dyn ModelImpl>, CallmError> {
-        let model: Box<dyn ModelImpl> = match self.architecture {
+    fn load_model(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
+        let model: Box<dyn ModelImpl + Send> = match self.architecture {
             ModelArchitecture::Llama => {
                 use candle_transformers::models::llama::LlamaConfig;
                 let config: LlamaConfig = serde_json::from_value(self.config.clone())?;
@@ -258,7 +258,7 @@ impl LoaderImpl for LoaderSafetensors {
         }
     }
 
-    fn load(&mut self) -> Result<Box<dyn ModelImpl>, CallmError> {
+    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
         self.validate_location()?;
         self.load_config()?;
         self.load_model()
