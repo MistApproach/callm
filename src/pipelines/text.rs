@@ -6,9 +6,9 @@ use crate::templates::MessageRole;
 use crate::utils::autodetect_loader;
 
 /// Pipeline for text generation
-pub struct PipelineText {
-    model: Option<Box<dyn ModelImpl + Send>>,
-    loader: Box<dyn LoaderImpl + Send>,
+pub struct PipelineText<'a> {
+    model: Option<Box<dyn ModelImpl<'a> + Send + 'a>>,
+    loader: Box<dyn LoaderImpl<'a> + Send + 'a>,
     device: DeviceConfig,
     // inference parameters
     seed: Option<u64>,
@@ -17,12 +17,12 @@ pub struct PipelineText {
     top_p: Option<f64>,
 }
 
-impl PipelineText {
-    pub fn builder() -> PipelineTextBuilder {
+impl<'a> PipelineText<'a> {
+    pub fn builder() -> PipelineTextBuilder<'a> {
         PipelineTextBuilder::new()
     }
 
-    pub fn new(loader: Box<dyn LoaderImpl + Send>) -> Self {
+    pub fn new(loader: Box<dyn LoaderImpl<'a> + Send + 'a>) -> Self {
         Self {
             loader,
             model: None,
@@ -35,12 +35,14 @@ impl PipelineText {
     }
 
     pub fn from_path(path: &str) -> Result<Self, CallmError> {
-        Ok(Self::new(autodetect_loader(path)?))
+        let loader = autodetect_loader(path)?;
+        let s = Self::new(loader);
+        Ok(s)
     }
 
-    pub fn load(&mut self) -> Result<(), CallmError> {
+    pub fn load(&'a mut self) -> Result<(), CallmError> {
         // propagate device to loader
-        self.loader.set_device(Some(self.device.clone()));
+        self.loader.set_device(&self.device);
         // loader
         let mut model = self.loader.load()?;
         // model
@@ -173,22 +175,20 @@ impl PipelineText {
 
 /// PipelineText Builder
 #[derive(Default)]
-pub struct PipelineTextBuilder {
+pub struct PipelineTextBuilder<'a> {
     location: Option<String>,
-    loader: Option<Box<dyn LoaderImpl + Send>>,
+    loader: Option<Box<dyn LoaderImpl<'a> + Send>>,
     device: Option<DeviceConfig>,
-    autoload: bool,
     temperature: f64,
     seed: Option<u64>,
     top_k: Option<usize>,
     top_p: Option<f64>,
 }
 
-impl PipelineTextBuilder {
+impl<'a> PipelineTextBuilder<'a> {
     pub fn new() -> Self {
         Self {
             temperature: 0.7,
-            autoload: true,
             ..Default::default()
         }
     }
@@ -198,7 +198,7 @@ impl PipelineTextBuilder {
         self
     }
 
-    pub fn with_loader(mut self, loader: Box<dyn LoaderImpl + Send>) -> Self {
+    pub fn with_loader(mut self, loader: Box<dyn LoaderImpl<'a> + Send>) -> Self {
         self.loader = Some(loader);
         self
     }
@@ -228,12 +228,7 @@ impl PipelineTextBuilder {
         self
     }
 
-    pub fn autoload(mut self, autoload: bool) -> Self {
-        self.autoload = autoload;
-        self
-    }
-
-    pub fn build(self) -> Result<PipelineText, CallmError> {
+    pub fn build(self) -> Result<PipelineText<'a>, CallmError> {
         let mut pipeline = match self.loader {
             Some(loader) => PipelineText::new(loader),
             None => match self.location {
@@ -254,10 +249,6 @@ impl PipelineTextBuilder {
 
         if let Some(device) = self.device {
             pipeline.device = device;
-        }
-
-        if self.autoload {
-            pipeline.load()?;
         }
 
         Ok(pipeline)

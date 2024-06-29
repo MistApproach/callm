@@ -29,7 +29,7 @@ impl ModelLlamaQuantized {
     }
 }
 
-impl ModelImpl for ModelLlamaQuantized {
+impl ModelImpl<'_> for ModelLlamaQuantized {
     fn forward(&mut self, input: &Tensor, index_pos: usize) -> Result<Tensor, CallmError> {
         self.model
             .forward(input, index_pos)

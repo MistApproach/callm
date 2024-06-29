@@ -20,21 +20,21 @@ const DEFAULT_MODEL_TOKENIZER_JSON: &str = "tokenizer.json";
 const DEFAULT_MODEL_TOKENIZER_CONFIG_JSON: &str = "tokenizer_config.json";
 
 #[derive(Debug, Default)]
-pub struct LoaderSafetensors {
+pub struct LoaderSafetensors<'a> {
     location: PathBuf,
     base_dir: PathBuf,
     model_files: Vec<PathBuf>,
     config_path: PathBuf,
     tokenizer_path: PathBuf,
     config: Value,
-    device: DeviceConfig,
+    device: Option<&'a DeviceConfig>,
     architecture: ModelArchitecture,
     bos_token_id: Option<i64>,
     eos_token_id: Option<i64>,
     chat_template: Option<String>,
 }
 
-impl LoaderSafetensors {
+impl<'a> LoaderSafetensors<'a> {
     pub fn new(location: &str) -> Self {
         Self {
             location: PathBuf::from(location),
@@ -202,7 +202,7 @@ impl LoaderSafetensors {
         Ok(())
     }
 
-    fn load_model(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
+    fn load_model(&mut self) -> Result<Box<dyn ModelImpl + Send + 'a>, CallmError> {
         let model: Box<dyn ModelImpl + Send> = match self.architecture {
             ModelArchitecture::Llama => {
                 use candle_transformers::models::llama::LlamaConfig;
@@ -210,7 +210,7 @@ impl LoaderSafetensors {
                 Box::new(ModelLlama::from_paths(
                     &self.model_files,
                     &config.into_config(USE_FLASH_ATTN),
-                    self.device.clone(),
+                    self.device.unwrap(),
                 )?)
             }
             ModelArchitecture::Mistral => {
@@ -219,7 +219,7 @@ impl LoaderSafetensors {
                 Box::new(ModelMistral::from_paths(
                     &self.model_files,
                     &config,
-                    self.device.clone(),
+                    self.device.unwrap(),
                 )?)
             }
             ModelArchitecture::Phi3 => {
@@ -228,7 +228,7 @@ impl LoaderSafetensors {
                 Box::new(ModelPhi3::from_paths(
                     &self.model_files,
                     &config,
-                    self.device.clone(),
+                    self.device.unwrap(),
                 )?)
             }
             ModelArchitecture::Qwen2 => {
@@ -237,7 +237,7 @@ impl LoaderSafetensors {
                 Box::new(ModelQwen2::from_paths(
                     &self.model_files,
                     &config,
-                    self.device.clone(),
+                    self.device.unwrap(),
                 )?)
             }
             _ => {
@@ -249,16 +249,12 @@ impl LoaderSafetensors {
     }
 }
 
-impl LoaderImpl for LoaderSafetensors {
-    fn set_device(&mut self, device: Option<DeviceConfig>) {
-        if let Some(dev) = device {
-            self.device = dev.clone();
-        } else {
-            self.device = DeviceConfig::default();
-        }
+impl<'a> LoaderImpl<'a> for LoaderSafetensors<'a> {
+    fn set_device(&mut self, device: &'a DeviceConfig) {
+        self.device = Some(device);
     }
 
-    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
+    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send + 'a>, CallmError> {
         self.validate_location()?;
         self.load_config()?;
         self.load_model()

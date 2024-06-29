@@ -13,7 +13,7 @@ impl ModelQwen2 {
     pub fn from_paths<P: AsRef<Path>>(
         paths: &[P],
         config: &Config,
-        device: DeviceConfig,
+        device: &DeviceConfig,
     ) -> Result<Self, CallmError> {
         // NOTE: unsafe inherited from memmap2::MmapOptions
         let vb = unsafe {
@@ -30,7 +30,7 @@ impl ModelQwen2 {
     }
 }
 
-impl ModelImpl for ModelQwen2 {
+impl ModelImpl<'_> for ModelQwen2 {
     fn forward(&mut self, input: &Tensor, index_pos: usize) -> Result<Tensor, CallmError> {
         Ok(self.model.forward(input, index_pos)?)
     }

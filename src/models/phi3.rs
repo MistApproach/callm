@@ -13,7 +13,7 @@ impl ModelPhi3 {
     pub fn from_paths<P: AsRef<Path>>(
         paths: &[P],
         config: &Config,
-        device: DeviceConfig,
+        device: &DeviceConfig,
     ) -> Result<Self, CallmError> {
         // NOTE: unsafe inherited from memmap2::MmapOptions
         let vb = unsafe {
@@ -30,7 +30,7 @@ impl ModelPhi3 {
     }
 }
 
-impl ModelImpl for ModelPhi3 {
+impl ModelImpl<'_> for ModelPhi3 {
     fn forward(&mut self, input: &Tensor, index_pos: usize) -> Result<Tensor, CallmError> {
         Ok(self.model.forward(input, index_pos)?)
     }

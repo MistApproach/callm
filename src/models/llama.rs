@@ -7,18 +7,18 @@ use std::path::Path;
 
 const USE_KV_CACHE: bool = true;
 
-pub struct ModelLlama {
+pub struct ModelLlama<'a> {
     model: Model,
     cache: Cache,
     config: Config,
-    device: DeviceConfig,
+    device: &'a DeviceConfig,
 }
 
-impl ModelLlama {
+impl<'a> ModelLlama<'a> {
     pub fn from_paths<P: AsRef<Path>>(
         paths: &[P],
         config: &Config,
-        device: DeviceConfig,
+        device: &'a DeviceConfig,
     ) -> Result<Self, CallmError> {
         // NOTE: unsafe inherited from memmap2::MmapOptions
         let vb = unsafe {
@@ -49,7 +49,7 @@ impl ModelLlama {
     }
 }
 
-impl ModelImpl for ModelLlama {
+impl<'a> ModelImpl<'_> for ModelLlama<'a> {
     fn forward(&mut self, input: &Tensor, index_pos: usize) -> Result<Tensor, CallmError> {
         Ok(self.model.forward(input, index_pos, &mut self.cache)?)
     }

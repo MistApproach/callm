@@ -76,14 +76,14 @@ pub struct LoaderGgufInfoTokenizer {
 
 /// GGUF loader
 #[derive(Clone, Debug, Default)]
-pub struct LoaderGguf {
+pub struct LoaderGguf<'a> {
     location: PathBuf,
     file_size: u64,
     info: LoaderGgufInfo,
-    device: DeviceConfig,
+    device: Option<&'a DeviceConfig>,
 }
 
-impl LoaderGguf {
+impl<'a> LoaderGguf<'a> {
     pub fn new(location: &str) -> Self {
         Self {
             location: PathBuf::from(location),
@@ -92,13 +92,9 @@ impl LoaderGguf {
     }
 }
 
-impl LoaderImpl for LoaderGguf {
-    fn set_device(&mut self, device: Option<DeviceConfig>) {
-        if let Some(dev) = device {
-            self.device = dev.clone();
-        } else {
-            self.device = DeviceConfig::default();
-        }
+impl<'a> LoaderImpl<'a> for LoaderGguf<'a> {
+    fn set_device(&mut self, device: &'a DeviceConfig) {
+        self.device = Some(device);
     }
 
     fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
@@ -147,7 +143,8 @@ impl LoaderImpl for LoaderGguf {
                     }
                 }
                 // load model
-                let mut m = ModelLlamaQuantized::from_gguf(gguf_header, &mut file, &self.device)?;
+                let mut m =
+                    ModelLlamaQuantized::from_gguf(gguf_header, &mut file, self.device.unwrap())?;
                 m.load()?;
 
                 m
