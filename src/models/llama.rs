@@ -31,7 +31,7 @@ impl<'a> ModelLlama<'a> {
 
         Ok(Self {
             model: Model::load(vb, config)?,
-            cache: Self::spawn_kv_cache(config, &device)?,
+            cache: Self::spawn_kv_cache(config, device)?,
             config: config.clone(),
             device,
         })
@@ -55,7 +55,7 @@ impl<'a> ModelImpl<'_> for ModelLlama<'a> {
     }
 
     fn clear_kv_cache(&mut self) -> Result<(), CallmError> {
-        self.cache = Self::spawn_kv_cache(&self.config, &self.device)?;
+        self.cache = Self::spawn_kv_cache(&self.config, self.device)?;
         Ok(())
     }
 }
