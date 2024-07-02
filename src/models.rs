@@ -23,7 +23,7 @@ pub enum ModelArchitecture {
     Qwen2,
 }
 
-pub trait ModelImpl {
+pub trait ModelImpl: Send {
     fn load(&mut self) -> Result<(), CallmError> {
         Ok(())
     }
