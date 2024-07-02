@@ -4,6 +4,7 @@ use candle_core::Tensor;
 use candle_nn::VarBuilder;
 use candle_transformers::models::phi3::{Config, Model};
 use std::path::Path;
+use std::sync::Arc;
 
 pub struct ModelPhi3 {
     model: Model,
@@ -13,7 +14,7 @@ impl ModelPhi3 {
     pub fn from_paths<P: AsRef<Path>>(
         paths: &[P],
         config: &Config,
-        device: DeviceConfig,
+        device: Arc<DeviceConfig>,
     ) -> Result<Self, CallmError> {
         // NOTE: unsafe inherited from memmap2::MmapOptions
         let vb = unsafe {

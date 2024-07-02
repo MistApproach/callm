@@ -4,12 +4,13 @@ use crate::loaders::LoaderImpl;
 use crate::models::ModelImpl;
 use crate::templates::MessageRole;
 use crate::utils::autodetect_loader;
+use std::sync::Arc;
 
 /// Pipeline for text generation
 pub struct PipelineText {
     model: Option<Box<dyn ModelImpl + Send>>,
     loader: Box<dyn LoaderImpl + Send>,
-    device: DeviceConfig,
+    device: Arc<DeviceConfig>,
     // inference parameters
     seed: Option<u64>,
     temperature: f64,
@@ -26,7 +27,7 @@ impl PipelineText {
         Self {
             loader,
             model: None,
-            device: DeviceConfig::autodetect(),
+            device: Arc::new(DeviceConfig::autodetect()),
             seed: None,
             temperature: 0.7,
             top_k: None,
@@ -40,7 +41,7 @@ impl PipelineText {
 
     pub fn load(&mut self) -> Result<(), CallmError> {
         // propagate device to loader
-        self.loader.set_device(Some(self.device.clone()));
+        self.loader.set_device(Arc::clone(&self.device));
         // loader
         let mut model = self.loader.load()?;
         // model
@@ -139,7 +140,7 @@ impl PipelineText {
     }
 
     pub fn set_device(&mut self, device: DeviceConfig) {
-        self.device = device;
+        self.device = Arc::new(device);
     }
 
     pub fn run_chat(&mut self, messages: &[(MessageRole, String)]) -> Result<String, CallmError> {
@@ -253,7 +254,7 @@ impl PipelineTextBuilder {
         pipeline.top_p = self.top_p;
 
         if let Some(device) = self.device {
-            pipeline.device = device;
+            pipeline.device = Arc::new(device);
         }
 
         if self.autoload {
