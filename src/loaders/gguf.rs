@@ -14,7 +14,7 @@ use llama::{parse_llama_kv, LoaderGgufInfoModelLlama};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tokenizers::Tokenizer;
 
@@ -98,7 +98,7 @@ impl LoaderImpl for LoaderGguf {
         self.device = device;
     }
 
-    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
+    fn load(&mut self) -> Result<Arc<Mutex<dyn ModelImpl>>, CallmError> {
         let timer = Instant::now();
         // check if location points to a file
         let file_metadata = fs::metadata(&self.location)?;
@@ -161,7 +161,7 @@ impl LoaderImpl for LoaderGguf {
 
         log::info!("Loaded in {:.2?}", Instant::now() - timer);
 
-        Ok(Box::new(model))
+        Ok(Arc::new(Mutex::new(model)))
     }
 
     fn tokenizer(&mut self) -> Result<Tokenizer, CallmError> {
