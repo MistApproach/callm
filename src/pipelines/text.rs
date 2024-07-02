@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex};
 
 /// Pipeline for text generation
 pub struct PipelineText {
-    model: Option<Box<dyn ModelImpl + Send>>,
+    model: Option<Arc<Mutex<dyn ModelImpl>>>,
     loader: Arc<Mutex<dyn LoaderImpl>>,
     device: Arc<DeviceConfig>,
     // inference parameters
@@ -44,9 +44,9 @@ impl PipelineText {
         // propagate device to loader
         loader.set_device(Arc::clone(&self.device));
         // loader
-        let mut model = loader.load()?;
+        let model = loader.load()?;
         // model
-        model.load()?;
+        model.lock().unwrap().load()?;
         // store model trait object
         self.model = Some(model);
 
@@ -60,6 +60,7 @@ impl PipelineText {
         let model = self.model.as_mut().ok_or(CallmError::GenericError(
             "Cannot run inference, model not loaded".to_string(),
         ))?;
+        let mut model = model.lock().unwrap();
 
         let mut loader = self.loader.lock().unwrap();
 

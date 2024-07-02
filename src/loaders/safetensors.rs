@@ -10,7 +10,7 @@ use serde_json::Value;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tokenizers::Tokenizer;
 
 const USE_FLASH_ATTN: bool = false;
@@ -203,43 +203,43 @@ impl LoaderSafetensors {
         Ok(())
     }
 
-    fn load_model(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
-        let model: Box<dyn ModelImpl + Send> = match self.architecture {
+    fn load_model(&mut self) -> Result<Arc<Mutex<dyn ModelImpl>>, CallmError> {
+        let model: Arc<Mutex<dyn ModelImpl>> = match self.architecture {
             ModelArchitecture::Llama => {
                 use candle_transformers::models::llama::LlamaConfig;
                 let config: LlamaConfig = serde_json::from_value(self.config.clone())?;
-                Box::new(ModelLlama::from_paths(
+                Arc::new(Mutex::new(ModelLlama::from_paths(
                     &self.model_files,
                     &config.into_config(USE_FLASH_ATTN),
                     Arc::clone(&self.device),
-                )?)
+                )?))
             }
             ModelArchitecture::Mistral => {
                 use candle_transformers::models::mistral::Config;
                 let config: Config = serde_json::from_value(self.config.clone())?;
-                Box::new(ModelMistral::from_paths(
+                Arc::new(Mutex::new(ModelMistral::from_paths(
                     &self.model_files,
                     &config,
                     Arc::clone(&self.device),
-                )?)
+                )?))
             }
             ModelArchitecture::Phi3 => {
                 use candle_transformers::models::phi3::Config;
                 let config: Config = serde_json::from_value(self.config.clone())?;
-                Box::new(ModelPhi3::from_paths(
+                Arc::new(Mutex::new(ModelPhi3::from_paths(
                     &self.model_files,
                     &config,
                     Arc::clone(&self.device),
-                )?)
+                )?))
             }
             ModelArchitecture::Qwen2 => {
                 use candle_transformers::models::qwen2::Config;
                 let config: Config = serde_json::from_value(self.config.clone())?;
-                Box::new(ModelQwen2::from_paths(
+                Arc::new(Mutex::new(ModelQwen2::from_paths(
                     &self.model_files,
                     &config,
                     Arc::clone(&self.device),
-                )?)
+                )?))
             }
             _ => {
                 return Err(CallmError::UnsupportedModel);
@@ -255,7 +255,7 @@ impl LoaderImpl for LoaderSafetensors {
         self.device = device;
     }
 
-    fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
+    fn load(&mut self) -> Result<Arc<Mutex<dyn ModelImpl>>, CallmError> {
         self.validate_location()?;
         self.load_config()?;
         self.load_model()
