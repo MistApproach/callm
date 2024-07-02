@@ -17,9 +17,9 @@ minijinja = "2.0"
 serde = "1.0"
 serde_json = "1.0"
 tokenizers = "0.19"
-candle-core = "0.5"
-candle-nn = "0.5"
-candle-transformers = "0.5"
+candle-core = "0.6"
+candle-nn = "0.6"
+candle-transformers = "0.6"
 
 [features]
 default = []
