@@ -10,7 +10,7 @@ use crate::templates::TemplateImpl;
 use std::sync::{Arc, Mutex};
 use tokenizers::tokenizer::Tokenizer;
 
-pub trait LoaderImpl {
+pub trait LoaderImpl: Send {
     fn set_device(&mut self, device: Arc<DeviceConfig>);
     fn load(&mut self) -> Result<Arc<Mutex<dyn ModelImpl>>, CallmError>;
     fn tokenizer(&mut self) -> Result<Tokenizer, CallmError>;
