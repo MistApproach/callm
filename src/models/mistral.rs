@@ -4,6 +4,7 @@ use candle_core::Tensor;
 use candle_nn::VarBuilder;
 use candle_transformers::models::mistral::{Config, Model};
 use std::path::Path;
+use std::sync::Arc;
 
 pub struct ModelMistral {
     model: Model,
@@ -13,7 +14,7 @@ impl ModelMistral {
     pub fn from_paths<P: AsRef<Path>>(
         paths: &[P],
         config: &Config,
-        device: DeviceConfig,
+        device: Arc<DeviceConfig>,
     ) -> Result<Self, CallmError> {
         // NOTE: unsafe inherited from memmap2::MmapOptions
         let vb = unsafe {

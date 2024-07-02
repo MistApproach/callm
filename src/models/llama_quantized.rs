@@ -5,6 +5,7 @@ use candle_core::quantized::gguf_file::Content;
 use candle_core::Tensor;
 use candle_transformers::models::quantized_llama::ModelWeights as Model;
 use std::io::{Read, Seek};
+use std::sync::Arc;
 
 pub struct ModelLlamaQuantized {
     model: Model,
@@ -18,7 +19,7 @@ impl ModelLlamaQuantized {
     pub fn from_gguf<R>(
         content: Content,
         reader: &mut R,
-        device: &DeviceConfig,
+        device: Arc<DeviceConfig>,
     ) -> Result<Self, CallmError>
     where
         R: Seek + Read,

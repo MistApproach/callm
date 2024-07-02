@@ -4,6 +4,7 @@ use candle_core::Tensor;
 use candle_nn::VarBuilder;
 use candle_transformers::models::llama::{Cache, Config, Llama as Model};
 use std::path::Path;
+use std::sync::Arc;
 
 const USE_KV_CACHE: bool = true;
 
@@ -11,14 +12,14 @@ pub struct ModelLlama {
     model: Model,
     cache: Cache,
     config: Config,
-    device: DeviceConfig,
+    device: Arc<DeviceConfig>,
 }
 
 impl ModelLlama {
     pub fn from_paths<P: AsRef<Path>>(
         paths: &[P],
         config: &Config,
-        device: DeviceConfig,
+        device: Arc<DeviceConfig>,
     ) -> Result<Self, CallmError> {
         // NOTE: unsafe inherited from memmap2::MmapOptions
         let vb = unsafe {

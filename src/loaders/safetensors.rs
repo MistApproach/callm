@@ -10,6 +10,7 @@ use serde_json::Value;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use tokenizers::Tokenizer;
 
 const USE_FLASH_ATTN: bool = false;
@@ -27,7 +28,7 @@ pub struct LoaderSafetensors {
     config_path: PathBuf,
     tokenizer_path: PathBuf,
     config: Value,
-    device: DeviceConfig,
+    device: Arc<DeviceConfig>,
     architecture: ModelArchitecture,
     bos_token_id: Option<i64>,
     eos_token_id: Option<i64>,
@@ -210,7 +211,7 @@ impl LoaderSafetensors {
                 Box::new(ModelLlama::from_paths(
                     &self.model_files,
                     &config.into_config(USE_FLASH_ATTN),
-                    self.device.clone(),
+                    Arc::clone(&self.device),
                 )?)
             }
             ModelArchitecture::Mistral => {
@@ -219,7 +220,7 @@ impl LoaderSafetensors {
                 Box::new(ModelMistral::from_paths(
                     &self.model_files,
                     &config,
-                    self.device.clone(),
+                    Arc::clone(&self.device),
                 )?)
             }
             ModelArchitecture::Phi3 => {
@@ -228,7 +229,7 @@ impl LoaderSafetensors {
                 Box::new(ModelPhi3::from_paths(
                     &self.model_files,
                     &config,
-                    self.device.clone(),
+                    Arc::clone(&self.device),
                 )?)
             }
             ModelArchitecture::Qwen2 => {
@@ -237,7 +238,7 @@ impl LoaderSafetensors {
                 Box::new(ModelQwen2::from_paths(
                     &self.model_files,
                     &config,
-                    self.device.clone(),
+                    Arc::clone(&self.device),
                 )?)
             }
             _ => {
@@ -250,12 +251,8 @@ impl LoaderSafetensors {
 }
 
 impl LoaderImpl for LoaderSafetensors {
-    fn set_device(&mut self, device: Option<DeviceConfig>) {
-        if let Some(dev) = device {
-            self.device = dev.clone();
-        } else {
-            self.device = DeviceConfig::default();
-        }
+    fn set_device(&mut self, device: Arc<DeviceConfig>) {
+        self.device = device;
     }
 
     fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {

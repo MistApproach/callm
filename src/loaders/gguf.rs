@@ -14,6 +14,7 @@ use llama::{parse_llama_kv, LoaderGgufInfoModelLlama};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Instant;
 use tokenizers::Tokenizer;
 
@@ -80,7 +81,7 @@ pub struct LoaderGguf {
     location: PathBuf,
     file_size: u64,
     info: LoaderGgufInfo,
-    device: DeviceConfig,
+    device: Arc<DeviceConfig>,
 }
 
 impl LoaderGguf {
@@ -93,12 +94,8 @@ impl LoaderGguf {
 }
 
 impl LoaderImpl for LoaderGguf {
-    fn set_device(&mut self, device: Option<DeviceConfig>) {
-        if let Some(dev) = device {
-            self.device = dev.clone();
-        } else {
-            self.device = DeviceConfig::default();
-        }
+    fn set_device(&mut self, device: Arc<DeviceConfig>) {
+        self.device = device;
     }
 
     fn load(&mut self) -> Result<Box<dyn ModelImpl + Send>, CallmError> {
@@ -147,7 +144,11 @@ impl LoaderImpl for LoaderGguf {
                     }
                 }
                 // load model
-                let mut m = ModelLlamaQuantized::from_gguf(gguf_header, &mut file, &self.device)?;
+                let mut m = ModelLlamaQuantized::from_gguf(
+                    gguf_header,
+                    &mut file,
+                    Arc::clone(&self.device),
+                )?;
                 m.load()?;
 
                 m
