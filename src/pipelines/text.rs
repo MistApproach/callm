@@ -4,12 +4,12 @@ use crate::loaders::LoaderImpl;
 use crate::models::ModelImpl;
 use crate::templates::MessageRole;
 use crate::utils::autodetect_loader;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 /// Pipeline for text generation
 pub struct PipelineText {
     model: Option<Box<dyn ModelImpl + Send>>,
-    loader: Box<dyn LoaderImpl + Send>,
+    loader: Arc<Mutex<dyn LoaderImpl>>,
     device: Arc<DeviceConfig>,
     // inference parameters
     seed: Option<u64>,
@@ -23,7 +23,7 @@ impl PipelineText {
         PipelineTextBuilder::new()
     }
 
-    pub fn new(loader: Box<dyn LoaderImpl + Send>) -> Self {
+    pub fn new(loader: Arc<Mutex<dyn LoaderImpl>>) -> Self {
         Self {
             loader,
             model: None,
@@ -40,10 +40,11 @@ impl PipelineText {
     }
 
     pub fn load(&mut self) -> Result<(), CallmError> {
+        let mut loader = self.loader.lock().unwrap();
         // propagate device to loader
-        self.loader.set_device(Arc::clone(&self.device));
+        loader.set_device(Arc::clone(&self.device));
         // loader
-        let mut model = self.loader.load()?;
+        let mut model = loader.load()?;
         // model
         model.load()?;
         // store model trait object
@@ -59,6 +60,8 @@ impl PipelineText {
         let model = self.model.as_mut().ok_or(CallmError::GenericError(
             "Cannot run inference, model not loaded".to_string(),
         ))?;
+
+        let mut loader = self.loader.lock().unwrap();
 
         // spawn logits processor
         // TODO: custom seed / random seed support
@@ -89,10 +92,10 @@ impl PipelineText {
         let mut logits_processor = LogitsProcessor::from_sampling(self.seed.unwrap_or(0), sampling);
 
         // spawn tokenizer
-        let tokenizer = self.loader.tokenizer()?;
+        let tokenizer = loader.tokenizer()?;
 
         // spawn template and get EOS token
-        let template = self.loader.template()?;
+        let template = loader.template()?;
         let eos_token_str = template.get_eos_token().expect("Missing EOS token");
         let eos_token = tokenizer
             .token_to_id(eos_token_str)
@@ -150,8 +153,13 @@ impl PipelineText {
             ));
         }
 
-        let template = self.loader.template()?;
-        let prompt = template.apply(messages)?;
+        let prompt = {
+            let mut loader = self.loader.lock().unwrap();
+
+            let template = loader.template()?;
+            template.apply(messages)?
+        };
+
         self.run(&prompt)
     }
 
@@ -176,7 +184,7 @@ impl PipelineText {
 #[derive(Default)]
 pub struct PipelineTextBuilder {
     location: Option<String>,
-    loader: Option<Box<dyn LoaderImpl + Send>>,
+    loader: Option<Arc<Mutex<dyn LoaderImpl>>>,
     device: Option<DeviceConfig>,
     autoload: bool,
     temperature: f64,
@@ -199,7 +207,7 @@ impl PipelineTextBuilder {
         self
     }
 
-    pub fn with_loader(mut self, loader: Box<dyn LoaderImpl + Send>) -> Self {
+    pub fn with_loader(mut self, loader: Arc<Mutex<dyn LoaderImpl>>) -> Self {
         self.loader = Some(loader);
         self
     }
