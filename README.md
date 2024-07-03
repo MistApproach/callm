@@ -130,4 +130,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 ## Documentation
-Consult the [documentation](https://docs.rs/callm/) for a full API reference.
+Consult the [documentation](https://docs.rs/callm/) for a full API reference.   
+Several examples and tools can be found in separate [callm-demos](https://github.com/MistApproach/callm-demos) repo.
