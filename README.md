@@ -4,8 +4,8 @@
 ![License](https://img.shields.io/crates/l/callm?style=plastic)
 
 ## About
-Callm allows you to easily run Generative AI models (like Large Language Models) directly on your hardware, offline.   
-Under the hood callm relies heavily on the [candle](https://github.com/huggingface/candle) crate and is written in pure Rust 🦀
+`callm` allows you to easily run Generative AI models (like Large Language Models) directly on your hardware, offline.   
+Under the hood `callm` relies heavily on the [candle](https://github.com/huggingface/candle) crate and is written in pure Rust 🦀
 
 ### Supported models
 
@@ -17,23 +17,23 @@ Under the hood callm relies heavily on the [candle](https://github.com/huggingfa
 | Qwen2 | ✅ | ❌ |
 
 ### Thread safety
-While pipelines are safe to send between threads, so far callm has not been tested extensively for thread-safety.   
+While pipelines are safe to send between threads, so far `callm` has not been tested extensively for thread-safety.   
 Caution is advised.
 
 ### Portability
-Currently, callm is known to run and has been tested on Linux and macOS.   
+Currently, `callm` is known to run and has been tested on Linux and macOS.   
 Windows has not been tested but is expected to work out-of-the-box.
 
-> Callm is still in early development stage and is NOT production ready yet.
+> `callm` is still in early development stage and is NOT production ready yet.
 
 ## Installation
-Add callm to your dependencies:
+Add `callm` to your dependencies:
 ```
 $ cargo add callm
 ```
 
 ### Enabling GPU support
-Callm uses features to selectively enable support for GPU acceleration.
+`callm` uses features to selectively enable support for GPU acceleration.
 
 #### NVIDIA (CUDA)
 Enable `cuda` feature to include support for CUDA devices.
@@ -48,7 +48,7 @@ $ cargo add callm -F metal
 ```
 
 ## Usage
-Callm uses builder pattern to create inference pipelines.
+`callm` uses builder pattern to create inference pipelines.
 
 ```rust
 use callm::pipelines::PipelineText;
