@@ -156,6 +156,11 @@ impl PipelineText {
         self.device = Arc::new(device);
     }
 
+    /// Gets the device configuration for the pipeline.
+    pub fn device(&self) -> Arc<DeviceConfig> {
+        Arc::clone(&self.device)
+    }
+
     /// Runs the text generation pipeline on a chat message sequence.
     pub fn run_chat(&mut self, messages: &[(MessageRole, String)]) -> Result<String, CallmError> {
         if self.model.is_none() {
