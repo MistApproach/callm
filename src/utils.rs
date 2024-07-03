@@ -22,7 +22,12 @@ pub fn autodetect_loader(path: &str) -> Result<Arc<Mutex<dyn LoaderImpl>>, Callm
             }
             "ggml" => todo!("GGML format is not supported, yet."),
             "safetensors" => return Ok(Arc::new(Mutex::new(LoaderSafetensors::new(path)))),
-            _ => {}
+            _ => {
+                // as a last resort try pointing loader to parent directory
+                if let Some(parent) = pthbuf.parent() {
+                    return autodetect_loader(parent.to_str().unwrap());
+                }
+            }
         }
     } else {
         return Ok(Arc::new(Mutex::new(LoaderSafetensors::new(path))));
