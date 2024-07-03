@@ -20,6 +20,7 @@ tokenizers = "0.19"
 candle-core = "0.6"
 candle-nn = "0.6"
 candle-transformers = "0.6"
+rand = "0.8"
 
 [features]
 default = []
