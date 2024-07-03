@@ -117,7 +117,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
         (
             MessageRole::User,
-            "What is your opinion on Rust in Linux kernel development?".to_string(),
+            "What is your opinion on Rust for Linux kernel development?".to_string(),
         ),
     ];
 
@@ -131,4 +131,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Documentation
 Consult the [documentation](https://docs.rs/callm/) for a full API reference.   
-Several examples and tools can be found in separate [callm-demos](https://github.com/MistApproach/callm-demos) repo.
+Several examples and tools can be found in a separate [callm-demos](https://github.com/MistApproach/callm-demos) repo.
