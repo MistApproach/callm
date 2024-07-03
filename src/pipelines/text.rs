@@ -1,3 +1,5 @@
+//! Pipeline for text generation
+
 use crate::device::DeviceConfig;
 use crate::error::CallmError;
 use crate::loaders::LoaderImpl;
@@ -19,10 +21,12 @@ pub struct PipelineText {
 }
 
 impl PipelineText {
+    /// Returns a new builder for constructing a `PipelineText`.
     pub fn builder() -> PipelineTextBuilder {
         PipelineTextBuilder::new()
     }
 
+    /// Creates a new `PipelineText` with the given loader.
     pub fn new(loader: Arc<Mutex<dyn LoaderImpl>>) -> Self {
         Self {
             loader,
@@ -35,24 +39,27 @@ impl PipelineText {
         }
     }
 
+    /// Creates a new `PipelineText` from a given path.
     pub fn from_path(path: &str) -> Result<Self, CallmError> {
         Ok(Self::new(autodetect_loader(path)?))
     }
 
+    /// Loads the model and prepares it for inference.
     pub fn load(&mut self) -> Result<(), CallmError> {
         let mut loader = self.loader.lock().unwrap();
-        // propagate device to loader
+        // Propagate device to loader
         loader.set_device(Arc::clone(&self.device));
-        // loader
+        // Use loader to get model trait object
         let model = loader.load()?;
-        // model
+        // Load the model
         model.lock().unwrap().load()?;
-        // store model trait object
+        // Store the model trait object
         self.model = Some(model);
 
         Ok(())
     }
 
+    /// Runs the text generation pipeline on the given input text.
     pub fn run(&mut self, text: &str) -> Result<String, CallmError> {
         use candle_core::Tensor;
         use candle_transformers::generation::{LogitsProcessor, Sampling};
@@ -64,7 +71,7 @@ impl PipelineText {
 
         let mut loader = self.loader.lock().unwrap();
 
-        // spawn logits processor
+        // Spawn logits processor
         // TODO: custom seed / random seed support
         let sampling = {
             if self.temperature <= 0.0 {
@@ -92,17 +99,17 @@ impl PipelineText {
         };
         let mut logits_processor = LogitsProcessor::from_sampling(self.seed.unwrap_or(0), sampling);
 
-        // spawn tokenizer
+        // Spawn tokenizer
         let tokenizer = loader.tokenizer()?;
 
-        // spawn template and get EOS token
+        // Spawn template and get EOS token
         let template = loader.template()?;
         let eos_token_str = template.get_eos_token().expect("Missing EOS token");
         let eos_token = tokenizer
             .token_to_id(eos_token_str)
             .expect("EOS token missing in the tokenizer");
 
-        // tokenize user input
+        // Tokenize user input
         let mut tokens = tokenizer
             .encode(text, false)
             .map_err(|e| CallmError::TokenizerError { msg: e.to_string() })?
@@ -113,6 +120,7 @@ impl PipelineText {
         log::trace!("EOS token: {} '{}'", eos_token, eos_token_str);
         log::trace!("Tokens: {:?}", tokens);
         log::trace!("Tokens count: {}", num_tokens_at_start);
+
         // TODO: calculate real max number of tokens by subtracting num_tokens_at_start from
         // context size
         for index in 0..1000 {
@@ -132,10 +140,10 @@ impl PipelineText {
             }
         }
 
-        // clear KV cache
+        // Clear KV cache
         model.clear_kv_cache()?;
 
-        // decode newly added tokens
+        // Decode newly added tokens
         let new_text = tokenizer
             .decode(&tokens[num_tokens_at_start..], true)
             .map_err(|e| CallmError::TokenizerError { msg: e.to_string() })?;
@@ -143,10 +151,12 @@ impl PipelineText {
         Ok(new_text)
     }
 
+    /// Sets the device configuration for the pipeline.
     pub fn set_device(&mut self, device: DeviceConfig) {
         self.device = Arc::new(device);
     }
 
+    /// Runs the text generation pipeline on a chat message sequence.
     pub fn run_chat(&mut self, messages: &[(MessageRole, String)]) -> Result<String, CallmError> {
         if self.model.is_none() {
             return Err(CallmError::GenericError(
@@ -164,24 +174,28 @@ impl PipelineText {
         self.run(&prompt)
     }
 
+    /// Sets the seed for the pipeline.
     pub fn set_seed(&mut self, seed: Option<u64>) {
         self.seed = seed;
     }
 
+    /// Sets the temperature for the pipeline.
     pub fn set_temperature(&mut self, temperature: f64) {
         self.temperature = temperature;
     }
 
+    /// Sets the top-k value for the pipeline.
     pub fn set_top_k(&mut self, top_k: Option<usize>) {
         self.top_k = top_k;
     }
 
+    /// Sets the top-p value for the pipeline.
     pub fn set_top_p(&mut self, top_p: Option<f64>) {
         self.top_p = top_p;
     }
 }
 
-/// PipelineText Builder
+/// Builder for constructing a `PipelineText`.
 #[derive(Default)]
 pub struct PipelineTextBuilder {
     location: Option<String>,
@@ -195,6 +209,7 @@ pub struct PipelineTextBuilder {
 }
 
 impl PipelineTextBuilder {
+    /// Creates a new `PipelineTextBuilder`.
     pub fn new() -> Self {
         Self {
             temperature: 0.7,
@@ -203,46 +218,55 @@ impl PipelineTextBuilder {
         }
     }
 
+    /// Sets the model location.
     pub fn with_location(mut self, location: &str) -> Self {
         self.location = Some(location.to_string());
         self
     }
 
+    /// Sets the loader to use.
     pub fn with_loader(mut self, loader: Arc<Mutex<dyn LoaderImpl>>) -> Self {
         self.loader = Some(loader);
         self
     }
 
+    /// Sets the device configuration.
     pub fn with_device(mut self, device: DeviceConfig) -> Self {
         self.device = Some(device);
         self
     }
 
+    /// Sets the temperature.
     pub fn with_temperature(mut self, temperature: f64) -> Self {
         self.temperature = temperature;
         self
     }
 
+    /// Sets the seed.
     pub fn with_seed(mut self, seed: u64) -> Self {
         self.seed = Some(seed);
         self
     }
 
+    /// Sets the top-k value.
     pub fn with_top_k(mut self, top_k: usize) -> Self {
         self.top_k = Some(top_k);
         self
     }
 
+    /// Sets the top-p value.
     pub fn with_top_p(mut self, top_p: f64) -> Self {
         self.top_p = Some(top_p);
         self
     }
 
+    /// Sets whether to autoload the model.
     pub fn autoload(mut self, autoload: bool) -> Self {
         self.autoload = autoload;
         self
     }
 
+    /// Builds the `PipelineText` instance.
     pub fn build(self) -> Result<PipelineText, CallmError> {
         let mut pipeline = match self.loader {
             Some(loader) => PipelineText::new(loader),
@@ -273,3 +297,4 @@ impl PipelineTextBuilder {
         Ok(pipeline)
     }
 }
+

@@ -1,22 +1,34 @@
+//! This module provides computation device configuration.
+
 use candle_core::{DType, Device as CandleDevice};
 
+/// Enum representing different types of devices available for computation.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Device {
+    /// The CPU device.
     CPU,
+    /// A CUDA device with a specific index.
     Cuda(usize),
+    /// A Metal device with a specific index.
     Metal(usize),
 }
 
-/// Describes device configuration
+/// Struct describing the configuration of a device.
 #[derive(Clone, Debug)]
 pub struct DeviceConfig {
+    /// The device type.
     device: Device,
+    /// The corresponding Candle device.
     candle_device: CandleDevice,
+    /// The data type used by the Candle device.
     candle_dtype: DType,
 }
 
 impl DeviceConfig {
     /// Automatically detects the available device and initializes the configuration.
+    ///
+    /// This function checks for the availability of CUDA and Metal devices. If none are available,
+    /// it defaults to using the CPU.
     pub fn autodetect() -> Self {
         if candle_core::utils::cuda_is_available() {
             Self::new(Device::Cuda(0))
@@ -28,6 +40,10 @@ impl DeviceConfig {
     }
 
     /// Creates a new `DeviceConfig` with the specified device.
+    ///
+    /// # Arguments
+    ///
+    /// * `device` - The device type to be used.
     pub fn new(device: Device) -> Self {
         let (candle_device, candle_dtype) = match device {
             Device::CPU => (CandleDevice::Cpu, DType::F32),
@@ -65,6 +81,7 @@ impl DeviceConfig {
 }
 
 impl Default for DeviceConfig {
+    /// Provides a default implementation for `DeviceConfig` by calling `autodetect`.
     fn default() -> Self {
         Self::autodetect()
     }
@@ -120,3 +137,4 @@ mod tests {
         }
     }
 }
+
