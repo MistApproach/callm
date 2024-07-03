@@ -13,13 +13,25 @@ Under the hood callm relies heavily on the [candle](https://github.com/huggingfa
 | Phi3 | ✅ | ❌ |
 | Qwen2 | ✅ | ❌ |
 
-> [!NOTE]
-> Callm is still at early development stage and is NOT production ready yet.
+> Callm is still in early development stage and is NOT production ready yet.
 
 ## Installation
 Add callm to your dependencies:
 ```
 $ cargo add callm
+```
+
+### Enabling GPU support
+Callm uses features for enabling GPU support.  
+
+#### NVIDIA - CUDA
+```
+$ cargo add callm -F cuda
+```
+
+#### Apple - Metal
+```
+$ cargo add callm -F metal
 ```
 
 ## Usage
