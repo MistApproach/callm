@@ -51,3 +51,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 ```
+
+Consult [documentation](https://docs.rs/callm/) for a full API reference.
