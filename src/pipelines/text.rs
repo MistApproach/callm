@@ -71,8 +71,14 @@ impl PipelineText {
 
         let mut loader = self.loader.lock().unwrap();
 
+        // Prepare seed
+        let seed = self.seed.unwrap_or_else(|| {
+            let s = rand::random::<u64>();
+            log::info!("Using random seed {}", s);
+            s
+        });
+
         // Spawn logits processor
-        // TODO: custom seed / random seed support
         let sampling = {
             if self.temperature <= 0.0 {
                 Sampling::ArgMax
@@ -97,7 +103,7 @@ impl PipelineText {
                 }
             }
         };
-        let mut logits_processor = LogitsProcessor::from_sampling(self.seed.unwrap_or(0), sampling);
+        let mut logits_processor = LogitsProcessor::from_sampling(seed, sampling);
 
         // Spawn tokenizer
         let tokenizer = loader.tokenizer()?;
