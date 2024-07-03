@@ -16,6 +16,10 @@ Under the hood callm relies heavily on the [candle](https://github.com/huggingfa
 | Phi3 | ✅ | ❌ |
 | Qwen2 | ✅ | ❌ |
 
+### Thread safety
+While pipelines are safe to send between threads, so far callm has not been tested extensively for thread-safety.   
+Caution is advised.
+
 ### Portability
 Currently, callm is known to run and has been tested on Linux and macOS.   
 Windows has not been tested but is expected to work out-of-the-box.
