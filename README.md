@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     // Run inference
-    let text_completion = pipeline.run("Tell me a joke about x86 instruction set")?;
+    let text_completion = pipeline.run("Tell me a joke about Rust borrow checker")?;
     println!("{text_completion}");
 
     Ok(())
