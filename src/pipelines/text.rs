@@ -180,8 +180,8 @@ impl PipelineText {
     }
 
     /// Sets the seed for the pipeline.
-    pub fn set_seed(&mut self, seed: Option<u64>) {
-        self.seed = seed;
+    pub fn set_seed(&mut self, seed: u64) {
+        self.seed = Some(seed);
     }
 
     /// Sets the temperature for the pipeline.
@@ -190,13 +190,13 @@ impl PipelineText {
     }
 
     /// Sets the top-k value for the pipeline.
-    pub fn set_top_k(&mut self, top_k: Option<usize>) {
-        self.top_k = top_k;
+    pub fn set_top_k(&mut self, top_k: usize) {
+        self.top_k = Some(top_k);
     }
 
     /// Sets the top-p value for the pipeline.
-    pub fn set_top_p(&mut self, top_p: Option<f64>) {
-        self.top_p = top_p;
+    pub fn set_top_p(&mut self, top_p: f64) {
+        self.top_p = Some(top_p);
     }
 }
 
@@ -302,4 +302,3 @@ impl PipelineTextBuilder {
         Ok(pipeline)
     }
 }
-
