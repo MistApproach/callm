@@ -1,13 +1,13 @@
 # callm
 
 ## About
-Callm allows you to easily run Generative AI models (like Large Language Models) directly on your hardware, offline.
-Under the hood callm relies heavily on the [candle](https://github.com/huggingface/candle) crate and is 100% pure Rust.
+Callm allows you to easily run Generative AI models (like Large Language Models) directly on your hardware, offline.   
+Under the hood callm relies heavily on the [candle](https://github.com/huggingface/candle) crate and is written in pure Rust 🦀
 
 ### Supported models
 
 | Model | Safetensors | GGUF (quantized) |
-|---|---|---|
+| :--- | :---: | :---: |
 | Llama | ✅ | ✅ |
 | Mistral | ✅ | ✅ |
 | Phi3 | ✅ | ❌ |
@@ -35,7 +35,7 @@ $ cargo add callm -F metal
 ```
 
 ## Usage
-Callm uses builder pattern for creating inference pipelines.
+Callm uses builder pattern to create inference pipelines.
 
 ```rust
 use callm::pipelines::PipelineText;
