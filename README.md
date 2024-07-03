@@ -1,5 +1,4 @@
 # callm
-[![GitHub action status](https://github.com/MistApproach/callm/workflows/rust.yml/badge.svg?event=push)](https://github.com/MistApproach/callm/actions)
 [![Latest version on crates.io](https://img.shields.io/crates/v/callm?style=plastic)](https://crates.io/crates/callm)
 [![Documentation on docs.rs](https://img.shields.io/docsrs/callm?style=plastic)](https://docs.rs/callm)
 ![License](https://img.shields.io/crates/l/callm?style=plastic)
