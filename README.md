@@ -88,10 +88,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
 ### Instruction-following and Chat models
-If the model you are loading includes a chat template you can use role-message style inference.
+If the model you are loading includes a chat template you can use conversation-style inference via `run_chat()`.   
+It accepts a slice of tuples in the form: `(MessageRole, String)`.
 
-```
-TODO!
+```rust
+use callm::pipelines::PipelineText;
+use callm::templates::MessageRole;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Build pipeline
+    let mut pipeline = PipelineText::builder()
+        .with_location("/path/to/model")
+        .with_temperature(0.1)
+        .build()?;
+
+    // Prepare conversation messages
+    let messages = vec![
+        (
+            MessageRole::System,
+            "You are impersonating Linus Torvalds.".to_string(),
+        ),
+        (
+            MessageRole::User,
+            "What is your opinion on Rust in Linux kernel development?".to_string(),
+        ),
+    ];
+
+    // Run chat-style inference
+    let assistant_response = pipeline.run_chat(&messages)?;
+    println!("{assistant_response}");
+
+    Ok(())
+}
 ```
 
 ## Documentation
