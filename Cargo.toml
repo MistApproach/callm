@@ -1,6 +1,6 @@
 [package]
 name = "callm"
-description = "Run generative AI models directly on your hardware"
+description = "Run Generative AI models directly on your hardware"
 version = "0.1.0"
 edition = "2021"
 authors = ["MistApproach"]
