@@ -4,8 +4,8 @@
 ![License](https://img.shields.io/crates/l/callm?style=plastic)
 
 ## About
-`callm` allows you to easily run Generative AI models (like Large Language Models) directly on your hardware, offline.   
-Under the hood `callm` relies heavily on the [candle](https://github.com/huggingface/candle) crate and is written in pure Rust 🦀
+`callm` enables you to run Generative AI models (such as Large Language Models) directly on your hardware, offline.   
+Under the hood, `callm` heavily relies on the [candle](https://github.com/huggingface/candle) crate and is written in pure Rust 🦀.
 
 ### Supported models
 
@@ -17,14 +17,13 @@ Under the hood `callm` relies heavily on the [candle](https://github.com/hugging
 | Qwen2 | ✅ | ❌ |
 
 ### Thread safety
-While pipelines are safe to send between threads, so far `callm` has not been tested extensively for thread-safety.   
+While pipelines are safe to send between threads, `callm` has not undergone extensive testing for thread-safety.   
 Caution is advised.
 
 ### Portability
-Currently, `callm` is known to run and has been tested on Linux and macOS.   
-Windows has not been tested but is expected to work out-of-the-box.
+`callm` is known to run on Linux and macOS, and has been tested on these platforms. While Windows has not been extensively tested, it is expected to work out-of-the-box without issues.
 
-> `callm` is still in early development stage and is NOT production ready yet.
+> `callm` is still in an early development stage and is not production-ready yet.
 
 ## Installation
 Add `callm` to your dependencies:
@@ -32,19 +31,21 @@ Add `callm` to your dependencies:
 $ cargo add callm
 ```
 
-### Enabling GPU support
+### Enabling GPU Support
 `callm` uses features to selectively enable support for GPU acceleration.
 
 #### NVIDIA (CUDA)
-Enable `cuda` feature to include support for CUDA devices.
+Enable the `cuda` feature to include support for CUDA devices.
+
 ```
-$ cargo add callm -F cuda
+$ cargo add callm --features cuda
 ```
 
 #### Apple (Metal)
-Enable `metal` feature to include support for Metal devices.
+Enable the `metal` feature to include support for Metal devices.
+
 ```
-$ cargo add callm -F metal
+$ cargo add callm --features metal
 ```
 
 ## Usage
@@ -67,7 +68,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Sampling parameters
+### Customizing sampling parameters
 Override default sampling parameters during pipeline build or afterwards.
 
 ```rust
@@ -95,8 +96,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
 ### Instruction-following and Chat models
-If the model you are loading includes a chat template you can use conversation-style inference via `run_chat()`.   
-It accepts a slice of tuples in the form: `(MessageRole, String)`.
+If the model you are loading includes a chat template, you can use conversation-style inference via `run_chat()`. It accepts a slice of tuples in the form: `(MessageRole, String)`.
 
 ```rust
 use callm::pipelines::PipelineText;
@@ -132,3 +132,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Documentation
 Consult the [documentation](https://docs.rs/callm/) for a full API reference.   
 Several examples and tools can be found in a separate [callm-demos](https://github.com/MistApproach/callm-demos) repo.
+
+## Contributing
+Thank you for your interest in contributing to `callm`!
+
+As this project is still in its early stages, your help is invaluable. Here are some ways you can get involved:
+
+* **Report issues**: If you encounter any bugs or unexpected behavior, please file an issue on GitHub. This will help us track and fix problems.
+* **Submit a pull request**: If you'd like to contribute code, please fork the repository, make your changes, and submit a pull request. We'll review and merge your changes as soon as possible.
+* **Help with documentation**: If you have expertise in a particular area, please help us improve our documentation.
+
+Thank you for your contributions! 💪
