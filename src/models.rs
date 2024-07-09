@@ -1,5 +1,7 @@
 //! This module provides various model implementations for different architectures.
 
+pub mod gemma;
+pub use gemma::ModelGemma;
 pub mod llama;
 pub use llama::ModelLlama;
 pub mod llama_quantized;
@@ -20,6 +22,7 @@ pub enum ModelArchitecture {
     /// Default value for unsupported architectures.
     #[default]
     Unsupported,
+    Gemma,
     Llama,
     LlamaQuantized,
     Mistral,
@@ -67,4 +70,3 @@ pub trait ModelImpl: Send {
         Ok(())
     }
 }
-

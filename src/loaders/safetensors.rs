@@ -2,7 +2,7 @@ use super::LoaderImpl;
 use crate::device::DeviceConfig;
 use crate::error::CallmError;
 use crate::models::{
-    ModelArchitecture, ModelImpl, ModelLlama, ModelMistral, ModelPhi3, ModelQwen2,
+    ModelArchitecture, ModelGemma, ModelImpl, ModelLlama, ModelMistral, ModelPhi3, ModelQwen2,
 };
 use crate::templates::{TemplateDummy, TemplateImpl, TemplateJinja};
 use serde::Deserialize;
@@ -163,6 +163,7 @@ impl LoaderSafetensors {
             .ok_or(CallmError::LoaderFail(
                 "Model architecture in model config is not a string".to_string(),
             ))? {
+            "Gemma2ForCausalLM" => ModelArchitecture::Gemma,
             "LlamaForCausalLM" => {
                 if let Some(eos_token_id) = &self.eos_token_id {
                     if *eos_token_id == 128001 {
@@ -205,6 +206,16 @@ impl LoaderSafetensors {
 
     fn load_model(&mut self) -> Result<Arc<Mutex<dyn ModelImpl>>, CallmError> {
         let model: Arc<Mutex<dyn ModelImpl>> = match self.architecture {
+            ModelArchitecture::Gemma => {
+                use candle_transformers::models::gemma::Config;
+                let config: Config = serde_json::from_value(self.config.clone())?;
+                Arc::new(Mutex::new(ModelGemma::from_paths(
+                    &self.model_files,
+                    &config,
+                    Arc::clone(&self.device),
+                    USE_FLASH_ATTN,
+                )?))
+            }
             ModelArchitecture::Llama => {
                 use candle_transformers::models::llama::LlamaConfig;
                 let config: LlamaConfig = serde_json::from_value(self.config.clone())?;
