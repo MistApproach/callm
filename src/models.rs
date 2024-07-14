@@ -12,6 +12,8 @@ pub mod phi3;
 pub use phi3::ModelPhi3;
 pub mod qwen2;
 pub use qwen2::ModelQwen2;
+pub mod qwen2_quantized;
+pub use qwen2_quantized::ModelQwen2Quantized;
 
 use crate::error::CallmError;
 use candle_core::Tensor;
@@ -28,6 +30,7 @@ pub enum ModelArchitecture {
     Mistral,
     Phi3,
     Qwen2,
+    Qwen2Quantized,
 }
 
 /// A trait defining the interface for model implementations.

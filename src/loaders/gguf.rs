@@ -7,7 +7,7 @@ pub mod llama;
 use super::LoaderImpl;
 use crate::device::DeviceConfig;
 use crate::error::CallmError;
-use crate::models::{ModelImpl, ModelLlamaQuantized};
+use crate::models::{ModelImpl, ModelLlamaQuantized, ModelQwen2Quantized};
 use crate::templates::{TemplateDummy, TemplateImpl, TemplateJinja};
 use candle_core::quantized::gguf_file::{Content, Value};
 use llama::{parse_llama_kv, LoaderGgufInfoModelLlama};
@@ -122,7 +122,7 @@ impl LoaderImpl for LoaderGguf {
         // parse model specific kv pairs
         log::debug!("Model architecture '{}'", gguf_info.architecture.as_str());
 
-        let model = match gguf_info.architecture.as_str() {
+        let model: Arc<Mutex<dyn ModelImpl>> = match gguf_info.architecture.as_str() {
             "llama" => {
                 // parse Llama kv (for future use)
                 gguf_info.model = LoaderGgufInfoModel::Llama(
@@ -150,8 +150,16 @@ impl LoaderImpl for LoaderGguf {
                     Arc::clone(&self.device),
                 )?;
                 m.load()?;
-
-                m
+                Arc::new(Mutex::new(m))
+            }
+            "qwen2" => {
+                let mut m = ModelQwen2Quantized::from_gguf(
+                    gguf_header,
+                    &mut file,
+                    Arc::clone(&self.device),
+                )?;
+                m.load()?;
+                Arc::new(Mutex::new(m))
             }
             _ => return Err(CallmError::UnsupportedModel),
         };
@@ -161,7 +169,7 @@ impl LoaderImpl for LoaderGguf {
 
         log::info!("Loaded in {:.2?}", Instant::now() - timer);
 
-        Ok(Arc::new(Mutex::new(model)))
+        Ok(model)
     }
 
     fn tokenizer(&mut self) -> Result<Tokenizer, CallmError> {
