@@ -14,7 +14,7 @@ Under the hood, `callm` heavily relies on the [candle](https://github.com/huggin
 | Llama | ✅ | ✅ |
 | Mistral | ✅ | ✅ |
 | Phi3 | ✅ | ❌ |
-| Qwen2 | ✅ | ❌ |
+| Qwen2 | ✅ | ✅ |
 
 ### Thread safety
 While pipelines are safe to send between threads, `callm` has not undergone extensive testing for thread-safety.   
