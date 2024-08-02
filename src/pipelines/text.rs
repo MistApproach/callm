@@ -204,6 +204,12 @@ impl PipelineText {
     pub fn set_top_p(&mut self, top_p: f64) {
         self.top_p = Some(top_p);
     }
+
+    /// Returns model name for the pipeline
+    pub fn model_name(&self) -> Option<String> {
+        let loader = self.loader.lock().unwrap();
+        loader.model_name()
+    }
 }
 
 /// Builder for constructing a `PipelineText`.

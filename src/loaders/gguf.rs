@@ -311,6 +311,10 @@ impl LoaderImpl for LoaderGguf {
 
         Ok(boxed_template)
     }
+
+    fn model_name(&self) -> Option<String> {
+        self.info.name.clone()
+    }
 }
 
 fn parse_required_kv(ctx: &Content) -> Result<LoaderGgufInfo, CallmError> {

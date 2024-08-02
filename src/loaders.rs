@@ -25,5 +25,7 @@ pub trait LoaderImpl: Send {
 
     /// Returns the template associated with the model.
     fn template(&mut self) -> Result<Box<dyn TemplateImpl>, CallmError>;
-}
 
+    /// Returns model name
+    fn model_name(&self) -> Option<String>;
+}

@@ -299,6 +299,12 @@ impl LoaderImpl for LoaderSafetensors {
 
         Ok(boxed_template)
     }
+
+    fn model_name(&self) -> Option<String> {
+        self.base_dir
+            .file_name()
+            .map(|v| v.to_str().unwrap().to_string())
+    }
 }
 
 // read Safetensors model index pointed by 'path' and return vector of model filenames
