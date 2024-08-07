@@ -110,8 +110,9 @@ impl LoaderImpl for LoaderGguf {
         self.file_size = file_metadata.len();
 
         // open file and read GGUF header
-        let mut file = fs::File::open(&self.location).expect("Error opening GGUF file");
-        let gguf_header = Content::read(&mut file).expect("Error reading GGUF header");
+        let mut file =
+            fs::File::open(&self.location).map_err(|e| CallmError::LoaderFail(e.to_string()))?;
+        let gguf_header = Content::read(&mut file).map_err(CallmError::CandleError)?;
 
         // parse general kv
         let mut gguf_info = parse_general_kv(&gguf_header)?;
@@ -126,7 +127,8 @@ impl LoaderImpl for LoaderGguf {
             "llama" => {
                 // parse Llama kv (for future use)
                 gguf_info.model = LoaderGgufInfoModel::Llama(
-                    parse_llama_kv(&gguf_header).expect("Error parsing model metadata"),
+                    parse_llama_kv(&gguf_header)
+                        .map_err(|e| CallmError::LoaderFail(e.to_string()))?,
                 );
 
                 // apply fix for wrong EOS token in Meta-Llama3
